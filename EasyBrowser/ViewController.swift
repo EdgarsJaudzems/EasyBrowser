@@ -12,7 +12,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
 
     var webView: WKWebView!
     var progressView: UIProgressView!
-    var websites = ["tvnet.lv", "youtube.com"]
+    var websites = ["hackingwithswift.com", "apple.com", "youtube.com"]
     
     override func loadView() {
         webView = WKWebView()
@@ -27,22 +27,21 @@ class ViewController: UIViewController, WKNavigationDelegate {
         
         let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let refresh = UIBarButtonItem(barButtonSystemItem: .refresh, target: webView, action: #selector(webView.reload))
+        let back = UIBarButtonItem(image: UIImage(systemName: "arrowtriangle.backward"), style: .plain, target: webView, action: #selector(webView.goBack))
+        let forward = UIBarButtonItem(image: UIImage(systemName: "arrowtriangle.forward"), style: .plain, target: webView, action: #selector(webView.goForward))
         
         progressView = UIProgressView(progressViewStyle: .default)
         progressView.sizeToFit()
         let progressButton = UIBarButtonItem(customView: progressView)
-        
-       
 
-        toolbarItems = [progressButton, spacer, refresh]
+        toolbarItems = [back, forward, spacer, progressButton, spacer, refresh]
         navigationController?.isToolbarHidden = false
         
         webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
         
-        let url = URL(string: "https://www." + websites[0])!
+        let url = URL(string: "https://" + websites[0])!
         webView.load(URLRequest(url: url))
         webView.allowsBackForwardNavigationGestures = true
-        
     }
 
     @objc func openTapped() {
@@ -80,19 +79,24 @@ class ViewController: UIViewController, WKNavigationDelegate {
             for website in websites {
                 if host.contains(website) {
                     decisionHandler(.allow)
+                    print("allowed:")
+                    print(url!)
                     return
                 }
             }
+           
         }
-        
+        print("not allowed:")
+        print(url!)
         decisionHandler(.cancel)
-  
+        
+        alert()
     }
     
     func alert() {
-        let ac = UIAlertController(title: "Warning", message: "This website is blocked", preferredStyle: .alert)
-        ac.addAction(UIAlertAction(title: "OK", style: .default))
-        present(ac, animated: true)
+        let alert = UIAlertController(title: "Warning", message: "This website is blocked", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+        present(alert, animated: true)
     }
 }
 
